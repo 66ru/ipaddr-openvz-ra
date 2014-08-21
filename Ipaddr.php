@@ -4,6 +4,8 @@ namespace m8rge\OCF;
 
 /**
  * Manage openvz containers ips
+ *
+ * Works like ocf:heartbeat:IPaddr but manage openvz containers instead nic
  */
 class Ipaddr extends OCF
 {
@@ -25,7 +27,7 @@ class Ipaddr extends OCF
      */
     public $ip;
 
-    protected $ipv4Regex = '/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(\d|[1-2]\d|3[0-2]))$/';
+    protected $ipv4Regex = '/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(\d|[1-2]\d|3[0-2]))?$/';
     protected $ipv6Regex = '/^((?=.*::)(?!.*::.+::)(::)?([\dA-F]{1,4}:(:|\b)|){5}|([\dA-F]{1,4}:){6})((([\dA-F]{1,4}((?!\3)::|:\b|$))|(?!\2\3)){2}|(((2[0-4]|1\d|[1-9])?\d|25[0-5])\.?\b){4})$/i';
 
     public function validateProperties()
@@ -33,10 +35,10 @@ class Ipaddr extends OCF
         $res =  parent::validateProperties();
 
         if ($res) {
-            if (!is_numeric($this->ctid)) {
+            if (!empty($this->ctid) && !is_numeric($this->ctid)) {
                 return false;
             }
-            if (!preg_match($this->ipv4Regex, $this->ip) && !preg_match($this->ipv6Regex, $this->ip)) {
+            if (!empty($this->ip) && !preg_match($this->ipv4Regex, $this->ip) && !preg_match($this->ipv6Regex, $this->ip)) {
                 return false;
             }
         }
