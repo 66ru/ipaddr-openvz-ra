@@ -40,11 +40,17 @@ class Ipaddr extends OCF
         $res =  parent::validateProperties();
 
         if ($res) {
-            exec('vzlist ' . escapeshellarg($this->ctid) . ' >/dev/null 2>&1', $output, $exitCode);
+            $exitCode = $this->execWithLogging('vzlist ' . escapeshellarg($this->ctid));
             if (!$exitCode) {
                 return false;
             }
             if (!empty($this->ip) && !preg_match($this->ipv4Regex, $this->ip) && !preg_match($this->ipv6Regex, $this->ip)) {
+                if ($this->ravenClient) {
+                    $this->ravenClient->extra_context(
+                        array('ip' => $this->ip)
+                    );
+                    $this->ravenClient->captureException(new \Exception("passed param is incorrect"));
+                }
                 return false;
             }
         }
