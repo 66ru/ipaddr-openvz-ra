@@ -30,7 +30,7 @@ class Ipaddr extends OCF
     /**
      * @var string[] Required console utilities
      */
-    protected $requiredUtilities = array('vzlist', 'vzctl');
+    protected $requiredUtilities = array('vzlist', 'vzctl --help');
 
     protected $ipv4Regex = '/^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(\d|[1-2]\d|3[0-2]))?$/';
     protected $ipv6Regex = '/^((?=.*::)(?!.*::.+::)(::)?([\dA-F]{1,4}:(:|\b)|){5}|([\dA-F]{1,4}:){6})((([\dA-F]{1,4}((?!\3)::|:\b|$))|(?!\2\3)){2}|(((2[0-4]|1\d|[1-9])?\d|25[0-5])\.?\b){4})$/i';
