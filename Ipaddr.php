@@ -41,7 +41,7 @@ class Ipaddr extends OCF
 
         if ($res) {
             $exitCode = $this->execWithLogging('vzlist ' . escapeshellarg($this->ctid));
-            if (!$exitCode) {
+            if ($exitCode) {
                 return false;
             }
             if (!empty($this->ip) && !preg_match($this->ipv4Regex, $this->ip) && !preg_match($this->ipv6Regex, $this->ip)) {
@@ -51,6 +51,7 @@ class Ipaddr extends OCF
                     );
                     $this->ravenClient->captureException(new \Exception("passed param is incorrect"));
                 }
+                echo 'bad ip '.$this->ip;
                 return false;
             }
         }
