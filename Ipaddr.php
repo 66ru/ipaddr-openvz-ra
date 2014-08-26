@@ -40,7 +40,7 @@ class Ipaddr extends OCF
         $res =  parent::validateProperties();
 
         if ($res) {
-            exec('vzlist ' . escapeshellarg($this->ctid), $output, $exitCode);
+            exec('vzlist ' . escapeshellarg($this->ctid) . ' >/dev/null 2>&1', $output, $exitCode);
             if (!$exitCode) {
                 return false;
             }
