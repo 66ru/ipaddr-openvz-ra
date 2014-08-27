@@ -9,7 +9,7 @@ namespace m8rge\OCF;
  */
 class Ipaddr extends OCF
 {
-    protected $version = '0.9';
+    protected $version = '1.0';
 
     /**
      * Container ID
@@ -51,7 +51,6 @@ class Ipaddr extends OCF
                     );
                     $this->ravenClient->captureException(new \Exception("passed param is incorrect"));
                 }
-                echo 'bad ip '.$this->ip;
                 return false;
             }
         }
@@ -78,7 +77,7 @@ class Ipaddr extends OCF
     public function actionStop()
     {
         $command = "vzctl set ".escapeshellarg($this->ctid)." --ipdel ".escapeshellarg($this->ip);
-        $exitCode = $this->execWithLogging($command);
+        $exitCode = $this->execWithLogging($command, array(0, 31));
 
         return $exitCode ? self::OCF_ERR_GENERIC : self::OCF_SUCCESS;
     }
@@ -91,7 +90,7 @@ class Ipaddr extends OCF
     public function actionMonitor()
     {
         $command = "vzctl exec ".escapeshellarg($this->ctid)." ip a | grep ".escapeshellarg($this->ip);
-        $exitCode = $this->execWithLogging($command);
+        $exitCode = $this->execWithLogging($command, array(0, 1));
 
         return $exitCode ? self::OCF_NOT_RUNNING : self::OCF_SUCCESS;
     }
