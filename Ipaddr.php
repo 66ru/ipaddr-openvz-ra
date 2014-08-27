@@ -65,7 +65,7 @@ class Ipaddr extends OCF
     public function actionStart()
     {
         $command = "vzctl set ".escapeshellarg($this->ctid)." --ipadd ".escapeshellarg($this->ip);
-        $exitCode = $this->execWithLogging($command);
+        $exitCode = $this->execWithLogging($command, array(0, 31));
 
         return $exitCode ? self::OCF_ERR_GENERIC : self::OCF_SUCCESS;
     }
