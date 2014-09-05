@@ -77,9 +77,10 @@ class Ipaddr extends OCF
     public function actionStop()
     {
         $command = "vzctl set ".escapeshellarg($this->ctid)." --ipdel ".escapeshellarg($this->ip);
-        $exitCode = $this->execWithLogging($command, array(0, 31));
+        $expectedExitCodes = array(0, 31); // 31 exit code from vzctl means CT is down. Works for us.
+        $exitCode = $this->execWithLogging($command, $expectedExitCodes);
 
-        return $exitCode ? self::OCF_ERR_GENERIC : self::OCF_SUCCESS;
+        return !in_array($exitCode, $expectedExitCodes) ? self::OCF_ERR_GENERIC : self::OCF_SUCCESS;
     }
 
     /**
