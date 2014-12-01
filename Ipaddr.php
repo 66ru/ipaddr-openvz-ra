@@ -9,7 +9,7 @@ namespace m8rge\OCF;
  */
 class Ipaddr extends OCF
 {
-    protected $version = '1.0';
+    protected $version = '1.1';
 
     /**
      * Container ID
@@ -26,6 +26,14 @@ class Ipaddr extends OCF
      * @var string
      */
     public $ip;
+
+    /**
+     * Activity state file
+     *
+     * File existence will show success activity of this resource
+     * @var string
+     */
+    public $stateFile;
 
     /**
      * @var string[] Required console utilities
@@ -58,6 +66,17 @@ class Ipaddr extends OCF
         return true;
     }
 
+    protected function touchActivity($untouch = false)
+    {
+        if (!empty($this->stateFile)) {
+            if (!$untouch) {
+                touch($this->stateFile);
+            } else {
+                unlink($this->stateFile);
+            }
+        }
+    }
+
     /**
      * @timeout 10
      * @return int
@@ -66,6 +85,8 @@ class Ipaddr extends OCF
     {
         $command = "vzctl set ".escapeshellarg($this->ctid)." --ipadd ".escapeshellarg($this->ip);
         $exitCode = $this->execWithLogging($command, array(0, 31));
+
+        $this->touchActivity($exitCode);
 
         return $exitCode ? self::OCF_ERR_GENERIC : self::OCF_SUCCESS;
     }
@@ -80,6 +101,8 @@ class Ipaddr extends OCF
         $expectedExitCodes = array(0, 31); // 31 exit code from vzctl means CT is down. Works for us.
         $exitCode = $this->execWithLogging($command, $expectedExitCodes);
 
+        $this->touchActivity(in_array($exitCode, $expectedExitCodes));
+
         return !in_array($exitCode, $expectedExitCodes) ? self::OCF_ERR_GENERIC : self::OCF_SUCCESS;
     }
 
@@ -92,6 +115,8 @@ class Ipaddr extends OCF
     {
         $command = "vzctl exec ".escapeshellarg($this->ctid)." ip a | grep ".escapeshellarg($this->ip);
         $exitCode = $this->execWithLogging($command, array(0, 1));
+
+        $this->touchActivity($exitCode);
 
         return $exitCode ? self::OCF_NOT_RUNNING : self::OCF_SUCCESS;
     }
