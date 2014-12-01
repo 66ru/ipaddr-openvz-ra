@@ -33,7 +33,7 @@ class Ipaddr extends OCF
      * File existence will show success activity of this resource
      * @var string
      */
-    public $stateFile;
+    public $stateFile = '';
 
     /**
      * @var string[] Required console utilities
