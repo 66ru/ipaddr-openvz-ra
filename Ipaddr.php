@@ -72,7 +72,9 @@ class Ipaddr extends OCF
             if (!$untouch) {
                 touch($this->stateFile);
             } else {
-                unlink($this->stateFile);
+                if (file_exists($this->stateFile)) {
+                    unlink($this->stateFile);
+                }
             }
         }
     }
