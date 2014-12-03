@@ -32,7 +32,7 @@ class Ipaddr extends OCF
      *
      * @var string
      */
-    public $gateway;
+    public $gateway = '';
 
     /**
      * Activity state file
