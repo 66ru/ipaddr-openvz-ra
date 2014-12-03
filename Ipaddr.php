@@ -9,7 +9,7 @@ namespace m8rge\OCF;
  */
 class Ipaddr extends OCF
 {
-    protected $version = '1.1';
+    protected $version = '1.2';
 
     /**
      * Container ID
@@ -26,6 +26,13 @@ class Ipaddr extends OCF
      * @var string
      */
     public $ip;
+
+    /**
+     * Default gateway
+     *
+     * @var string
+     */
+    public $gateway;
 
     /**
      * Activity state file
@@ -61,6 +68,15 @@ class Ipaddr extends OCF
                 }
                 return false;
             }
+            if (!empty($this->gateway) && !preg_match($this->ipv4Regex, $this->gateway) && !preg_match($this->ipv6Regex, $this->gateway)) {
+                if ($this->ravenClient) {
+                    $this->ravenClient->extra_context(
+                        array('gateway' => $this->gateway)
+                    );
+                    $this->ravenClient->captureException(new \Exception("passed param is incorrect"));
+                }
+                return false;
+            }
         }
 
         return true;
@@ -87,10 +103,25 @@ class Ipaddr extends OCF
     {
         $command = "vzctl set ".escapeshellarg($this->ctid)." --ipadd ".escapeshellarg($this->ip);
         $exitCode = $this->execWithLogging($command, array(0, 31));
+        if ($exitCode == 0 && !empty($this->gateway)) {
+            $command = "vzctl exec ".escapeshellarg($this->ctid)." route add default gw ".escapeshellarg($this->gateway);
+            $expectedExitCodes = array(0, 7); // 7 exit code = already done
+            $exitCode = $this->execWithLogging($command, $expectedExitCodes);
+            if (!in_array($exitCode, $expectedExitCodes)) {
+                $this->removeIp();
+            }
+        }
 
         $this->touchActivity($exitCode);
 
         return $exitCode ? self::OCF_ERR_GENERIC : self::OCF_SUCCESS;
+    }
+
+    protected function removeIp()
+    {
+        $command = "vzctl set ".escapeshellarg($this->ctid)." --ipdel ".escapeshellarg($this->ip);
+        $expectedExitCodes = array(0, 31); // 31 exit code from vzctl means CT is down. Works for us.
+        return $this->execWithLogging($command, $expectedExitCodes);
     }
 
     /**
@@ -99,9 +130,13 @@ class Ipaddr extends OCF
      */
     public function actionStop()
     {
-        $command = "vzctl set ".escapeshellarg($this->ctid)." --ipdel ".escapeshellarg($this->ip);
         $expectedExitCodes = array(0, 31); // 31 exit code from vzctl means CT is down. Works for us.
-        $exitCode = $this->execWithLogging($command, $expectedExitCodes);
+
+        $exitCode = $this->removeIp();
+        if ($exitCode == 0 && !empty($this->gateway)) {
+            $command = "vzctl exec ".escapeshellarg($this->ctid)." route del default gw ".escapeshellarg($this->gateway);
+            $exitCode = $this->execWithLogging($command, array(0, 7));  // 7 exit code = already done
+        }
 
         $this->touchActivity(in_array($exitCode, $expectedExitCodes));
 
