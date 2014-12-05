@@ -9,7 +9,7 @@ namespace m8rge\OCF;
  */
 class Ipaddr extends OCF
 {
-    protected $version = '1.1';
+    protected $version = '1.1.1';
 
     /**
      * Container ID
@@ -48,8 +48,7 @@ class Ipaddr extends OCF
         $res =  parent::validateProperties();
 
         if ($res) {
-            $exitCode = $this->execWithLogging('vzlist ' . escapeshellarg($this->ctid));
-            if ($exitCode) {
+            if (empty($this->ctid)) {
                 return false;
             }
             if (!empty($this->ip) && !preg_match($this->ipv4Regex, $this->ip) && !preg_match($this->ipv6Regex, $this->ip)) {
