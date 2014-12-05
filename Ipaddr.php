@@ -55,8 +55,7 @@ class Ipaddr extends OCF
         $res =  parent::validateProperties();
 
         if ($res) {
-            $exitCode = $this->execWithLogging('vzlist ' . escapeshellarg($this->ctid));
-            if ($exitCode) {
+            if (empty($this->ctid)) {
                 return false;
             }
             if (!empty($this->ip) && !preg_match($this->ipv4Regex, $this->ip) && !preg_match($this->ipv6Regex, $this->ip)) {
