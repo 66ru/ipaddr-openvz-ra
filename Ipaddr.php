@@ -134,7 +134,8 @@ class Ipaddr extends OCF
         $exitCode = $this->removeIp();
         if ($exitCode == 0 && !empty($this->gateway)) {
             $command = "vzctl exec ".escapeshellarg($this->ctid)." route del default gw ".escapeshellarg($this->gateway);
-            $exitCode = $this->execWithLogging($command, array(0, 7, 8));
+            $expectedExitCodes = array(0, 7, 8);
+            $exitCode = $this->execWithLogging($command, $expectedExitCodes);
         }
 
         $this->touchActivity(in_array($exitCode, $expectedExitCodes));
