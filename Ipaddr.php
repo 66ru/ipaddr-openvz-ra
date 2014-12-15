@@ -9,7 +9,7 @@ namespace m8rge\OCF;
  */
 class Ipaddr extends OCF
 {
-    protected $version = '1.2.3';
+    protected $version = '1.2.4';
 
     /**
      * Container ID
@@ -104,7 +104,7 @@ class Ipaddr extends OCF
         $exitCode = $this->execWithLogging($command, array(0, 31));
         if ($exitCode == 0 && !empty($this->gateway)) {
             $command = "vzctl exec ".escapeshellarg($this->ctid)." route add default gw ".escapeshellarg($this->gateway);
-            $expectedExitCodes = array(0, 7); // 7 exit code = already done
+            $expectedExitCodes = array(0, 8); // 8 exit code = already done
             $exitCode = $this->execWithLogging($command, $expectedExitCodes);
             if (!in_array($exitCode, $expectedExitCodes)) {
                 $this->removeIp();
@@ -152,6 +152,10 @@ class Ipaddr extends OCF
     {
         $command = "vzctl exec ".escapeshellarg($this->ctid)." ip a | grep ".escapeshellarg($this->ip);
         $exitCode = $this->execWithLogging($command, array(0, 1));
+        if ($exitCode == 0) {
+            $command = "vzctl exec ".escapeshellarg($this->ctid)." route | grep ".escapeshellarg($this->gateway);
+            $exitCode = $this->execWithLogging($command, array(0, 1));
+        }
 
         $this->touchActivity($exitCode);
 
