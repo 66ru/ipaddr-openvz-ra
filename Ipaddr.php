@@ -9,7 +9,7 @@ namespace m8rge\OCF;
  */
 class Ipaddr extends OCF
 {
-    protected $version = '1.2.4';
+    protected $version = '1.2.5';
 
     /**
      * Container ID
