@@ -100,10 +100,10 @@ class Ipaddr extends OCF
      */
     public function actionStart()
     {
-        $command = "vzctl set ".escapeshellarg($this->ctid)." --ipadd ".escapeshellarg($this->ip);
+        $command = "vzctl set ".escapeshellarg($this->ctid)." --verbose --ipadd ".escapeshellarg($this->ip);
         $exitCode = $this->execWithLogging($command, array(0, 31));
         if ($exitCode == 0 && !empty($this->gateway)) {
-            $command = "vzctl exec ".escapeshellarg($this->ctid)." route add default gw ".escapeshellarg($this->gateway);
+            $command = "vzctl exec --verbose ".escapeshellarg($this->ctid)." route add default gw ".escapeshellarg($this->gateway);
             $expectedExitCodes = array(0, 8); // 8 means error
             $exitCode = $this->execWithLogging($command, $expectedExitCodes);
             if ($exitCode) {
@@ -118,7 +118,7 @@ class Ipaddr extends OCF
 
     protected function removeIp()
     {
-        $command = "vzctl set ".escapeshellarg($this->ctid)." --ipdel ".escapeshellarg($this->ip);
+        $command = "vzctl --verbose set ".escapeshellarg($this->ctid)." --ipdel ".escapeshellarg($this->ip);
         $expectedExitCodes = array(0, 31); // 31 exit code from vzctl means CT is down. Works for us.
         return $this->execWithLogging($command, $expectedExitCodes);
     }
@@ -133,7 +133,7 @@ class Ipaddr extends OCF
 
         $exitCode = $this->removeIp();
         if ($exitCode == 0 && !empty($this->gateway)) {
-            $command = "vzctl exec ".escapeshellarg($this->ctid)." route | grep ".escapeshellarg($this->gateway)." && route del default gw ".escapeshellarg($this->gateway);
+            $command = "vzctl exec --verbose ".escapeshellarg($this->ctid)." route | grep ".escapeshellarg($this->gateway)." && route del default gw ".escapeshellarg($this->gateway);
             $expectedExitCodes = array(0);
             $exitCode = $this->execWithLogging($command, array(0, 8));
         }
